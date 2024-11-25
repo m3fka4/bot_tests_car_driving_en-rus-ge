@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  bot:
+    build:
+      context: .
+    container_name: bot
+    depends_on:
+      - db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: exam_bot
+      DATABASE_URL: postgres://postgres:password@db/exam_bot  # Указание переменной окружения для бота
+    volumes:
+      - .:/app
+    command: python -m bot.main  # Указание файла запуска
+    restart: always  # Для перезапуска бота в случае ошибок
+
+  db:
+    image: postgres:15
+    container_name: db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: exam_bot
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
