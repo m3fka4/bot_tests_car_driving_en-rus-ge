@@ -5,17 +5,20 @@ FROM python:3.10-slim
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
-    && apt-get clean
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Создаем рабочую директорию
+# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем файлы проекта
-COPY . /app
+# Сначала копируем только зависимости для использования кэша Docker
+COPY requirements.txt .
 
 # Устанавливаем зависимости Python
-RUN pip install --no-cache-dir --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Копируем оставшиеся файлы проекта
+COPY . .
 
 # Указываем точку входа
-CMD ["python", "-m", "bot.main"]
+CMD ["python", "bot/main.py"]
